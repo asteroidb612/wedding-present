@@ -64,7 +64,7 @@ var path = d3.geo.path()
 
 var svg = d3.select("body").insert("svg:svg", "h2")
     .attr("width", w)
-    .attr("height", h);
+    .attr("height", h)
 
 var states = svg.append("svg:g")
     .attr("id", "states");
@@ -133,22 +133,30 @@ d3.csv("flights-airport.csv", function(flights) {
     d3.csv("wedding.csv", function(guests) {
         guests = guests.filter(function(guest) {
           if (guest.longitude && guest.latitude) {
-            guest_homes.push(projection([+guest.latitude, +guest.longitude]))
+            guest_homes.push(projection([+guest.latitude, +guest.longitude]));
+          }
+          else {
+            guest_homes.push([1000 + Math.random() * 150, Math.random() * 500]);
+            guest.longitude = guest.latitude = 0;
+          }
+          if (guest) {
             return true;
-        }
-
+          }
         })
-    var polygons = d3.geom.voronoi(guest_homes);
-       console.log(polygons)
 
     var g = cells.selectAll("g")
         .data(guests)
       .enter().append("svg:g");
 
+    //The voronoi polygons
+    var polygons = d3.geom.voronoi(guest_homes);
     g.append("svg:path")
         .attr("class", "cell")
         .attr("d", function(d, i) { return "M" + polygons[i].join("L") + "Z"; })
-        .on("mouseover", function(d, i) { d3.select("h2 span").text(d["Where do you live?"]); });
+        .on("mouseover", function(d, i) { 
+          d3.select("h2 span").text(d["Where do you live?"]);
+          d3.selectAll("circle").attr("r", function(c_d, c_i) {return i === c_i? 20: 10 })
+        });
 
        circles.selectAll("circle")
        .data(guests)
