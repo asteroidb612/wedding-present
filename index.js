@@ -26,18 +26,8 @@ d3.select("input[type=checkbox]").on("change", function() {
   cells.classed("voronoi", this.checked);
 });
 
-d3.json("us-states.json", function(collection) {
-  states
-    .selectAll("path")
-    .data(collection.features)
-    .enter()
-    .append("svg:path")
-    .attr("d", path)
-    .attr("opacity", 1);
-});
-
-guest_homes = [];
 d3.csv("wedding.csv", function(guests) {
+  guest_homes = [];
   guests = guests.filter(function(guest) {
     if (guest.longitude && guest.latitude) {
       guest_homes.push(projection([+guest.latitude, +guest.longitude]));
@@ -50,9 +40,30 @@ d3.csv("wedding.csv", function(guests) {
     }
   });
 
+  var title = d3.select("h1");
   var currentScene = 0;
+  //TODO: Brooke when present?
   function setScene() {
+    console.log(currentScene);
     if (currentScene === 0) {
+      title.text("Where do you live?");
+      //  TODO: Get right lat,long",
+      //  TODO: Change projection to rounder",
+      //  TODO: center on sf",
+      //  TODO: put non-latlong around round projection",
+      //  TODO: fix voronoi spacing"
+      //  TODO: Go backwards?
+      // TODO just states we have?
+      //TODO : Why can't we move backwards to this?
+      d3.json("us-states.json", function(collection) {
+        states
+          .selectAll("path")
+          .data(collection.features)
+          .enter()
+          .append("svg:path")
+          .attr("d", path)
+          .attr("opacity", 1);
+      });
       var g = cells
         .selectAll("g")
         .data(guests)
@@ -89,6 +100,9 @@ d3.csv("wedding.csv", function(guests) {
           return 10;
         });
     } else if (currentScene === 1) {
+      title.text("Where are you now?"); //TODO ["real lat/longs", "new voronoi"]);
+    } else if (currentScene === 2) {
+      title.text("To San Francisco"); //TODO ["Party colors", "Zoom", "Bug"]);
       d3
         .selectAll("#states path")
         .transition()
@@ -104,7 +118,16 @@ d3.csv("wedding.csv", function(guests) {
         .attr("cy", function(d, i) {
           return guest_homes[0][1];
         });
-    } else if (currentScene === 2) {
+    } else if (currentScene === 3) {
+      title.text("Responds to suspicious emails");
+      // TODO Grey group descends from top
+      // TODO Shows who responded, who didn't
+      // TODO Probably no cycling?
+    } else if (currentScene === 4) {
+      title.text("Does Cottonball Like you?");
+      //TODO d3 to half, cotton ball slides in right
+      //TODO vertical instead of horizontal
+      //TODO Pictures shift depending on person. 3? more?
       d3
         .selectAll("#states path")
         .transition()
@@ -130,6 +153,16 @@ d3.csv("wedding.csv", function(guests) {
         .duration(1750)
         .attr("cx", positionForCottonBallX)
         .attr("cy", positionForCottonBallY);
+    } else if (currentScene === 5) {
+      title.text("Keto");
+      //TODO Slide in picture other side? Food from elaine?
+      //TODO Kitchen pictures from mark!
+    } else if (currentScene === 6) {
+      title.text("Tweets");
+      // TODO Dots are fighting to talk?
+      // TODO  Cycle over tweets
+      // TODO Transition each tweeter to come to center to say
+      // TODO Tweetbox for tweets
     }
   }
   document.addEventListener("keydown", function(event) {
