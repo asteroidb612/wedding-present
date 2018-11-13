@@ -13,6 +13,7 @@ var path = d3.geo.path().projection(projection);
 var svg = d3
   .select("body")
   .insert("svg:svg", "h2")
+  .attr("display", "inline-block")
   .attr("width", w)
   .attr("height", h);
 
@@ -21,6 +22,15 @@ var states = svg.append("svg:g").attr("id", "states");
 var circles = svg.append("svg:g").attr("id", "circles");
 
 var cells = svg.append("svg:g").attr("id", "cells");
+
+var cotton = svg
+  .append("svg:image")
+  .attr("id", "cotton")
+  .attr("xlink:href", "cotton.jpg")
+  .attr("height", h)
+  .attr("width", w / 2)
+  .attr("x", w)
+  .attr("y", 0);
 
 d3.select("input[type=checkbox]").on("change", function() {
   cells.classed("voronoi", this.checked);
@@ -53,8 +63,9 @@ d3.csv("wedding.csv", function(guests) {
       //  TODO: put non-latlong around round projection",
       //  TODO: fix voronoi spacing"
       //  TODO: Go backwards?
-      // TODO just states we have?
-      //TODO : Why can't we move backwards to this?
+      //  TODO just states we have?
+      //  TODO : Why can't we move backwards to this?
+      //  TODO : trails over animations for lived, met, sf
       d3.json("us-states.json", function(collection) {
         states
           .selectAll("path")
@@ -128,23 +139,37 @@ d3.csv("wedding.csv", function(guests) {
       //TODO d3 to half, cotton ball slides in right
       //TODO vertical instead of horizontal
       //TODO Pictures shift depending on person. 3? more?
+      svg
+        .select("#cotton")
+        .transition()
+        .duration(1750)
+        .attr("height", h)
+        .attr("width", w / 2)
+        .attr("x", w / 2)
+        .attr("y", 0);
+
+      d3
+        .select("img")
+        .transition()
+        .duration(1000)
+        .attr("width", w / 2);
       d3
         .selectAll("#states path")
         .transition()
         .duration(1000)
         .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
 
-      function positionForCottonBallX(d, i) {
+      function positionForCottonBallY(d, i) {
         var ans = d["Does Cotton Ball like you?"];
         if (ans === "Yes") {
-          return 700 + 100 * Math.random();
+          return 400 + 100 * Math.random();
         } else if (ans === "No") {
-          return 300 + 100 * Math.random();
+          return 100 * Math.random();
         } else {
-          return 500 + 100 * Math.random();
+          return 200 + 100 * Math.random();
         }
       }
-      function positionForCottonBallY() {
+      function positionForCottonBallX() {
         return 300 + 100 * Math.random();
       }
       circles
