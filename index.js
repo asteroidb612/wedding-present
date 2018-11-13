@@ -50,44 +50,45 @@ d3.csv("wedding.csv", function(guests) {
     }
   });
 
-  var g = cells
-    .selectAll("g")
-    .data(guests)
-    .enter()
-    .append("svg:g");
+  var currentScene = 0;
+  function setScene() {
+    if (currentScene === 0) {
+      var g = cells
+        .selectAll("g")
+        .data(guests)
+        .enter()
+        .append("svg:g");
 
-  //The voronoi polygons
-  var polygons = d3.geom.voronoi(guest_homes);
-  g
-    .append("svg:path")
-    .attr("class", "cell")
-    .attr("d", function(d, i) {
-      return "M" + polygons[i].join("L") + "Z";
-    })
-    .on("mouseover", function(d, i) {
-      d3.select("h2 span").text(d["Where do you live?"]);
-      d3.selectAll("circle").attr("r", function(c_d, c_i) {
-        return i === c_i ? 20 : 10;
-      });
-    });
+      //The voronoi polygons
+      var polygons = d3.geom.voronoi(guest_homes);
+      g
+        .append("svg:path")
+        .attr("class", "cell")
+        .attr("d", function(d, i) {
+          return "M" + polygons[i].join("L") + "Z";
+        })
+        .on("mouseover", function(d, i) {
+          d3.select("h2 span").text(d["Where do you live?"]);
+          d3.selectAll("circle").attr("r", function(c_d, c_i) {
+            return i === c_i ? 20 : 10;
+          });
+        });
 
-  circles
-    .selectAll("circle")
-    .data(guests)
-    .enter()
-    .append("svg:circle")
-    .attr("cx", function(d, i) {
-      return guest_homes[i][0];
-    })
-    .attr("cy", function(d, i) {
-      return guest_homes[i][1];
-    })
-    .attr("r", function() {
-      return 10;
-    });
-
-  document.addEventListener("keydown", function(event) {
-    if (event.key === "ArrowRight") {
+      circles
+        .selectAll("circle")
+        .data(guests)
+        .enter()
+        .append("svg:circle")
+        .attr("cx", function(d, i) {
+          return guest_homes[i][0];
+        })
+        .attr("cy", function(d, i) {
+          return guest_homes[i][1];
+        })
+        .attr("r", function() {
+          return 10;
+        });
+    } else if (currentScene === 1) {
       d3
         .selectAll("#states path")
         .transition()
@@ -103,8 +104,7 @@ d3.csv("wedding.csv", function(guests) {
         .attr("cy", function(d, i) {
           return guest_homes[0][1];
         });
-    }
-    if (event.key === "ArrowLeft") {
+    } else if (currentScene === 2) {
       d3
         .selectAll("#states path")
         .transition()
@@ -131,5 +131,16 @@ d3.csv("wedding.csv", function(guests) {
         .attr("cx", positionForCottonBallX)
         .attr("cy", positionForCottonBallY);
     }
+  }
+  document.addEventListener("keydown", function(event) {
+    if (event.key === "ArrowRight") {
+      currentScene += 1;
+      setScene();
+    }
+    if (event.key === "ArrowLeft" && currentScene > 0) {
+      currentScene -= 1;
+      setScene();
+    }
   });
+  setScene();
 });
