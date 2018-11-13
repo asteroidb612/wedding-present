@@ -83,7 +83,8 @@ d3.json("us-states.json", function(collection) {
   states.selectAll("path")
       .data(collection.features)
     .enter().append("svg:path")
-      .attr("d", path);
+      .attr("d", path)
+      .attr("opacity", 1);
 });
 
 d3.csv("flights-airport.csv", function(flights) {
@@ -164,7 +165,21 @@ d3.csv("flights-airport.csv", function(flights) {
        .attr("cx", function(d,i) {return guest_homes[i][0];})
        .attr("cy", function(d,i) {return guest_homes[i][1];})
        .attr("r", function() {return 10})
-         
+
+       document.addEventListener('keydown', function(event) {
+       if (event.key === "ArrowRight") {
+         d3.selectAll("#states path")
+              .transition()
+              .duration(1750)
+              .attr("opacity", 1e-6) //Bostock recommendation, css can't use smaller interpolion resolution
+         circles.selectAll("circle")
+              .transition()
+              .duration(1750)
+              .attr("cx", function(d,i) {return guest_homes[0][0];})
+              .attr("cy", function(d,i) {return guest_homes[0][1];})
+       }
+     })        
+
     })
   });
 });
