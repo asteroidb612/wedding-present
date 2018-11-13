@@ -32,6 +32,15 @@ var cotton = svg
   .attr("x", w)
   .attr("y", 0);
 
+var keto = svg
+  .append("svg:image")
+  .attr("id", "keto")
+  .attr("xlink:href", "roll.jpg")
+  .attr("height", h)
+  .attr("width", w / 2)
+  .attr("x", -w)
+  .attr("y", 0);
+
 d3.select("input[type=checkbox]").on("change", function() {
   cells.classed("voronoi", this.checked);
 });
@@ -139,6 +148,7 @@ d3.csv("wedding.csv", function(guests) {
       //TODO d3 to half, cotton ball slides in right
       //TODO vertical instead of horizontal
       //TODO Pictures shift depending on person. 3? more?
+      // TODO force clustering https://bl.ocks.org/mbostock/7882658
       svg
         .select("#cotton")
         .transition()
@@ -148,11 +158,6 @@ d3.csv("wedding.csv", function(guests) {
         .attr("x", w / 2)
         .attr("y", 0);
 
-      d3
-        .select("img")
-        .transition()
-        .duration(1000)
-        .attr("width", w / 2);
       d3
         .selectAll("#states path")
         .transition()
@@ -182,6 +187,47 @@ d3.csv("wedding.csv", function(guests) {
       title.text("Keto");
       //TODO Slide in picture other side? Food from elaine?
       //TODO Kitchen pictures from mark!
+      svg
+        .select("#keto")
+        .transition()
+        .duration(1750)
+        .attr("height", h)
+        .attr("width", w / 2)
+        .attr("x", 0)
+        .attr("y", 0);
+      svg
+        .select("#cotton")
+        .transition()
+        .duration(1750)
+        .attr("height", h)
+        .attr("width", w / 2)
+        .attr("x", w)
+        .attr("y", 0);
+      d3
+        .selectAll("#states path")
+        .transition()
+        .duration(1000)
+        .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
+
+      function positionForKetoY(d, i) {
+        var ans = d["Have you ever been on the Keto diet?"];
+        if (ans === "Yes") {
+          return 500 + 100 * Math.random();
+        } else if (ans === "No") {
+          return 100 + 100 * Math.random();
+        } else {
+          return 300 + 100 * Math.random();
+        }
+      }
+      function positionForKetoX() {
+        return 900 + 100 * Math.random();
+      }
+      circles
+        .selectAll("circle")
+        .transition()
+        .duration(1750)
+        .attr("cx", positionForKetoX)
+        .attr("cy", positionForKetoY);
     } else if (currentScene === 6) {
       title.text("Tweets");
       // TODO Dots are fighting to talk?
