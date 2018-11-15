@@ -185,12 +185,62 @@ d3.csv("wedding.csv", function(guests) {
       function positionForCottonBallX() {
         return 300 + 100 * Math.random();
       }
-      circles
+      var forSim = circles
         .selectAll("circle")
         .transition()
+
         .duration(1750)
         .attr("cx", positionForCottonBallX)
         .attr("cy", positionForCottonBallY);
+
+      //      setTimeout(function() {
+      //        for (var i = 0; i < 100; i++) tick();
+      //      }, 1750);
+
+      var force = d3.layout
+        .force()
+        .nodes(guests)
+        .size([w / 2, h])
+        .gravity(0.22)
+        .on("tick", tick)
+        .start();
+
+      function tick(e) {
+        forSim
+          .each(collide(0.5))
+          .attr("cx", function(d) {
+            return d.x;
+          })
+          .attr("cy", function(d) {
+            return d.y;
+          });
+      }
+      function collide(alpha) {
+        var quadtree = d3.geom.quadtree(guests);
+        return function(d) {
+          var r = d.radius,
+            nx1 = d.x - r,
+            nx2 = d.x + r,
+            ny1 = d.y - r,
+            ny2 = d.y + r;
+          quadtree.visit(function(quad, x1, y1, x2, y2) {
+            if (quad.point && quad.point !== d) {
+              var x = d.x - quad.point.x,
+                y = d.y - quad.point.y,
+                l = Math.sqrt(x * x + y * y),
+                r = d.radius + quad.point.radius;
+              if (l < r) {
+                l = (l - r) / l * alpha;
+                d.x -= x *= l;
+                d.y -= y *= l;
+                quad.point.x += x;
+                quad.point.y += y;
+              }
+            }
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+          });
+        };
+      }
     } else if (currentScene === 5) {
       title.text("Keto");
       //TODO Slide in picture other side? Food from elaine?
