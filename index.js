@@ -61,7 +61,15 @@ d3.csv("wedding.csv", function(guests) {
 
   var title = d3.select("h1");
   var currentScene = 0;
-  //TODO: Brooke when present?
+  // TODO: Brooke when present?
+  // TODO: Tablet?
+  // TODO: Recontextualize titles
+  // From Brooke
+  //// No response shaming
+  //// Better SF frame, Bridge?
+  //// Email Brooke invitations etc
+  //// Nesting weird, how transition? https://bl.ocks.org/mbostock/1021841
+  ////  TODO timeline https://bl.ocks.org/mbostock/6526445e2b44303eebf21da3b6627320
   function setScene() {
     console.log(currentScene);
     if (currentScene === 0) {
@@ -73,8 +81,9 @@ d3.csv("wedding.csv", function(guests) {
       //  TODO: fix voronoi spacing"
       //  TODO: Go backwards?
       //  TODO just states we have?
-      //  TODO : Why can't we move backwards to this?
-      //  TODO : trails over animations for lived, met, sf
+      //  TODO: Why can't we move backwards to this?
+      //  TODO: trails over animations for lived, met, sf
+      //  TODO: clustering https://bl.ocks.org/mbostock/7882658
       d3.json("us-states.json", function(collection) {
         states
           .selectAll("path")
@@ -97,13 +106,13 @@ d3.csv("wedding.csv", function(guests) {
         .attr("class", "cell")
         .attr("d", function(d, i) {
           return "M" + polygons[i].join("L") + "Z";
-        })
-        .on("mouseover", function(d, i) {
-          d3.select("h2 span").text(d["Where do you live?"]);
-          d3.selectAll("circle").attr("r", function(c_d, c_i) {
-            return i === c_i ? 20 : 10;
-          });
         });
+      //        .on("mouseover", function(d, i) {
+      //          d3.select("h2 span").text(d["Where do you live?"]);
+      //          d3.selectAll("circle").attr("r", function(c_d, c_i) {
+      //            return i === c_i ? 20 : 10;
+      //          });
+      //        });
 
       circles
         .selectAll("circle")
@@ -122,7 +131,7 @@ d3.csv("wedding.csv", function(guests) {
     } else if (currentScene === 1) {
       title.text("Where are you now?"); //TODO ["real lat/longs", "new voronoi"]);
     } else if (currentScene === 2) {
-      title.text("To San Francisco"); //TODO ["Party colors", "Zoom", "Bug"]);
+      title.text("To San Francisco"); //TODO ["Party colors", "Zoom"]);
       d3
         .selectAll("#states path")
         .transition()
@@ -139,10 +148,8 @@ d3.csv("wedding.csv", function(guests) {
           return guest_homes[0][1];
         });
     } else if (currentScene === 3) {
-      title.text("Responds to suspicious emails");
-      // TODO Grey group descends from top
-      // TODO Shows who responded, who didn't
-      // TODO Probably no cycling?
+      // TODO Show how long people have known mark or elaine
+      // TODO COLOR
     } else if (currentScene === 4) {
       title.text("Does Cottonball Like you?");
       //TODO d3 to half, cotton ball slides in right
@@ -163,6 +170,7 @@ d3.csv("wedding.csv", function(guests) {
         .transition()
         .duration(1000)
         .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
+      //TODO TODO SHIIIIT How do I get the simulated targets to transition to BEFORE transitioning?
 
       function positionForCottonBallY(d, i) {
         var ans = d["Does Cotton Ball like you?"];
@@ -239,10 +247,6 @@ d3.csv("wedding.csv", function(guests) {
   document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowRight") {
       currentScene += 1;
-      setScene();
-    }
-    if (event.key === "ArrowLeft" && currentScene > 0) {
-      currentScene -= 1;
       setScene();
     }
   });
