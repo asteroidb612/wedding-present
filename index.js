@@ -40,14 +40,25 @@ var keto = svg
   .attr("width", w / 2)
   .attr("x", -w)
   .attr("y", 0);
-
+function sunflower(centerX, centerY, spacing, theta) {
+  if (!spacing) spacing = 20;
+  if (!theta) theta = 1;
+  var offset = Math.random() * Math.PI * 2;
+  var n = 0;
+  return function(i) {
+    var a = n * theta + offset;
+    var radius = spacing * Math.sqrt(n);
+    n += 1;
+    return [centerX + radius * Math.cos(a), centerY + radius * Math.sin(a)];
+  };
+}
 d3.select("input[type=checkbox]").on("change", function() {
   cells.classed("voronoi", this.checked);
 });
-
-d3.csv("wedding.csv", function(guests) {
+var guests;
+d3.csv("wedding.csv", function(g) {
   guest_homes = [];
-  guests = guests.filter(function(guest) {
+  guests = g.filter(function(guest) {
     if (guest.longitude && guest.latitude) {
       guest_homes.push(projection([+guest.latitude, +guest.longitude]));
     } else {
@@ -170,77 +181,27 @@ d3.csv("wedding.csv", function(guests) {
         .transition()
         .duration(1000)
         .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
-      //TODO TODO SHIIIIT How do I get the simulated targets to transition to BEFORE transitioning?
 
-      function positionForCottonBallY(d, i) {
-        var ans = d["Does Cotton Ball like you?"];
-        if (ans === "Yes") {
-          return 400 + 100 * Math.random();
-        } else if (ans === "No") {
-          return 100 * Math.random();
-        } else {
-          return 200 + 100 * Math.random();
-        }
+      var sunYes = sunflower(300, 500),
+        sunNo = sunflower(300, 300),
+        sunWho = sunflower(300, 100);
+      for (var i = 0; i < guests.length; i++) {
+        var ans = guests[i]["Does Cotton Ball like you?"];
+        var coords = //Man I wish JS had case expressions...
+          ans === "Yes" ? sunYes() : ans === "No" ? sunNo() : sunWho();
+        guests[i].cottonX = coords[0];
+        guests[i].cottonY = coords[1];
       }
-      function positionForCottonBallX() {
-        return 300 + 100 * Math.random();
-      }
-      var forSim = circles
+      circles
         .selectAll("circle")
         .transition()
-
         .duration(1750)
-        .attr("cx", positionForCottonBallX)
-        .attr("cy", positionForCottonBallY);
-
-      //      setTimeout(function() {
-      //        for (var i = 0; i < 100; i++) tick();
-      //      }, 1750);
-
-      var force = d3.layout
-        .force()
-        .nodes(guests)
-        .size([w / 2, h])
-        .gravity(0.22)
-        .on("tick", tick)
-        .start();
-
-      function tick(e) {
-        forSim
-          .each(collide(0.5))
-          .attr("cx", function(d) {
-            return d.x;
-          })
-          .attr("cy", function(d) {
-            return d.y;
-          });
-      }
-      function collide(alpha) {
-        var quadtree = d3.geom.quadtree(guests);
-        return function(d) {
-          var r = d.radius,
-            nx1 = d.x - r,
-            nx2 = d.x + r,
-            ny1 = d.y - r,
-            ny2 = d.y + r;
-          quadtree.visit(function(quad, x1, y1, x2, y2) {
-            if (quad.point && quad.point !== d) {
-              var x = d.x - quad.point.x,
-                y = d.y - quad.point.y,
-                l = Math.sqrt(x * x + y * y),
-                r = d.radius + quad.point.radius;
-              if (l < r) {
-                l = (l - r) / l * alpha;
-                d.x -= x *= l;
-                d.y -= y *= l;
-                quad.point.x += x;
-                quad.point.y += y;
-              }
-            }
-            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
-          });
-        };
-      }
+        .attr("cx", function(d) {
+          return d.cottonX;
+        })
+        .attr("cy", function(d) {
+          return d.cottonY;
+        });
     } else if (currentScene === 5) {
       title.text("Keto");
       //TODO Slide in picture other side? Food from elaine?
@@ -261,31 +222,29 @@ d3.csv("wedding.csv", function(guests) {
         .attr("width", w / 2)
         .attr("x", w)
         .attr("y", 0);
-      d3
-        .selectAll("#states path")
-        .transition()
-        .duration(1000)
-        .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
 
-      function positionForKetoY(d, i) {
-        var ans = d["Have you ever been on the Keto diet?"];
-        if (ans === "Yes") {
-          return 500 + 100 * Math.random();
-        } else if (ans === "No") {
-          return 100 + 100 * Math.random();
-        } else {
-          return 300 + 100 * Math.random();
-        }
+      var ketoYes = sunflower(800, 500),
+        ketoNo = sunflower(800, 300),
+        ketoWho = sunflower(800, 100);
+
+      for (var i = 0; i < guests.length; i++) {
+        var ans = guests[i]["Have you ever been on the Keto diet?"];
+        var coords = //Man I wish JS had case expressions...
+          ans === "Yes" ? ketoYes() : ans === "No" ? ketoNo() : ketoWho();
+        guests[i].ketoX = coords[0];
+        guests[i].ketoY = coords[1];
       }
-      function positionForKetoX() {
-        return 900 + 100 * Math.random();
-      }
+
       circles
         .selectAll("circle")
         .transition()
         .duration(1750)
-        .attr("cx", positionForKetoX)
-        .attr("cy", positionForKetoY);
+        .attr("cx", function(d) {
+          return d.ketoX;
+        })
+        .attr("cy", function(d) {
+          return d.ketoY;
+        });
     } else if (currentScene === 6) {
       title.text("Tweets");
       // TODO Dots are fighting to talk?
