@@ -23,6 +23,14 @@ var circles = svg.append("svg:g").attr("id", "circles");
 
 var cells = svg.append("svg:g").attr("id", "cells");
 
+var bridge = svg
+  .append("svg:image")
+  .attr("id", "bridge")
+  .attr("xlink:href", "bridge.jpg")
+  .attr("height", h)
+  .attr("width", w)
+  .attr("opacity", 1e-6);
+
 var cotton = svg
   .append("svg:image")
   .attr("id", "cotton")
@@ -138,11 +146,6 @@ d3.csv("wedding.csv", function(guest_data) {
       title.text("Where are you now?"); //TODO ["real lat/longs", "new voronoi"]);
     } else if (currentScene === 2) {
       title.text("To San Francisco"); //TODO ["Party colors", "Zoom"]);
-      d3
-        .selectAll("#states path")
-        .transition()
-        .duration(1750)
-        .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
       circles
         .selectAll("circle")
         .transition()
@@ -152,6 +155,20 @@ d3.csv("wedding.csv", function(guest_data) {
         })
         .attr("cy", function(d, i) {
           return guest_homes[0][1];
+        })
+        .each("end", function() {
+          d3
+            .selectAll("#states path")
+            .transition()
+            .duration(1750)
+            .attr("opacity", 1e-6)
+            .each("end", function() {
+              d3
+                .select("#bridge")
+                .transition()
+                .duration(750)
+                .attr("opacity", 1);
+            }); //Bostock recommendation, css can't use smaller interpolion resolution
         });
     } else if (currentScene === 3) {
       title.text("How long you've known them");
@@ -169,12 +186,6 @@ d3.csv("wedding.csv", function(guest_data) {
         .attr("width", w / 2)
         .attr("x", w / 2)
         .attr("y", 0);
-
-      d3
-        .selectAll("#states path")
-        .transition()
-        .duration(1000)
-        .attr("opacity", 1e-6); //Bostock recommendation, css can't use smaller interpolion resolution
 
       var sunYes = sunflower(300, 500),
         sunNo = sunflower(300, 300),
