@@ -49,12 +49,13 @@ var keto = svg
   .attr("x", -w)
   .attr("y", 0);
 
-function sunflower(centerX, centerY, spacing, theta) {
+function sunflower(centerX, centerY, spacing, theta, skip) {
   //TODO More even spacing? https://bl.ocks.org/mbostock/11478058
   if (!spacing) spacing = 20;
   if (!theta) theta = 1;
+  if (!skip) skip = 0;
   var offset = Math.random() * Math.PI * 2;
-  var n = 0;
+  var n = skip;
   return function(i) {
     var a = n * theta + offset;
     var radius = spacing * Math.sqrt(n);
@@ -75,7 +76,7 @@ d3.csv("wedding.csv", function(guest_data) {
     if (guest.longitude && guest.latitude) {
       guest_homes.push(projection([+guest.latitude, +guest.longitude]));
     } else {
-      guest_homes.push([1000 + Math.random() * 150, Math.random() * 500]);
+      guest_homes.push([1000 + Math.random() * 150, 500]);
       guest.longitude = guest.latitude = 0;
     }
     if (guest) {
@@ -83,7 +84,8 @@ d3.csv("wedding.csv", function(guest_data) {
     }
   });
 
-  var title = d3.select("h1");
+  var title = d3.select("#title");
+  var subtitle = d3.select("#text");
   var currentScene = 0;
   //// Better SF frame, Bridge?
   //// Email Brooke invitations etc
@@ -107,20 +109,15 @@ d3.csv("wedding.csv", function(guest_data) {
           .attr("d", path)
           .attr("opacity", 1);
       });
-      var g = cells
-        .selectAll("g")
-        .data(guests)
-        .enter()
-        .append("svg:g");
 
       //The voronoi polygons
-      var polygons = d3.geom.voronoi(guest_homes);
-      g
-        .append("svg:path")
-        .attr("class", "cell")
-        .attr("d", function(d, i) {
-          return "M" + polygons[i].join("L") + "Z";
-        });
+      //      var polygons = d3.geom.voronoi(guest_homes);
+      //      g
+      //        .append("svg:path")
+      //        .attr("class", "cell")
+      //        .attr("d", function(d, i) {
+      //          return "M" + polygons[i].join("L") + "Z";
+      //        })
       //        .on("mouseover", function(d, i) {
       //          d3.select("h2 span").text(d["Where do you live?"]);
       //          d3.selectAll("circle").attr("r", function(c_d, c_i) {
@@ -160,7 +157,7 @@ d3.csv("wedding.csv", function(guest_data) {
           d3
             .selectAll("#states path")
             .transition()
-            .duration(1750)
+            .duration(750)
             .attr("opacity", 1e-6)
             .each("end", function() {
               d3
@@ -172,6 +169,15 @@ d3.csv("wedding.csv", function(guest_data) {
         });
     } else if (currentScene === 3) {
       title.text("How long you've known them");
+      d3
+        .select("#bridge")
+        .transition()
+        .duration(750)
+        .attr("opacity", 1e-6)
+        .each("end", function() {
+          d3.select("#bridge").attr("x", "3000");
+        });
+
       // TODO Show how long people have known mark or elaine
       // TODO COLOR
     } else if (currentScene === 4) {
@@ -251,11 +257,67 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.ketoY;
         });
     } else if (currentScene === 6) {
+      svg
+        .select("#keto")
+        .transition()
+        .duration(1750)
+        .attr("height", h)
+        .attr("width", w / 2)
+        .attr("x", -w)
+        .attr("y", 0);
+      var t = sunflower(w / 2, h / 2, null, null, 20);
+
+      var tweet_coords = [];
+      for (var i = 0; i < guests.length; i++) {
+        var coords = t();
+        tweet_coords.push(coords);
+        guests[i].tweetX = coords[0];
+        guests[i].tweetY = coords[1];
+      }
+
+      circles
+        .selectAll("circle")
+        .transition()
+        .duration(1750)
+        .attr("cx", function(d) {
+          return d.tweetX;
+        })
+        .attr("cy", function(d) {
+          return d.tweetY;
+        });
+
       title.text("Tweets");
-      // TODO Dots are fighting to talk?
       // TODO  Cycle over tweets
       // TODO Transition each tweeter to come to center to say
       // TODO Tweetbox for tweets
+      //The voronoi polygons
+      var g = cells
+        .selectAll("g")
+        .data(guests)
+        .enter()
+        .append("svg:g");
+      var polygons = d3.geom.voronoi(tweet_coords);
+      g
+        .append("svg:path")
+        .attr("class", "cell")
+        .attr("d", function(d, i) {
+          return "M" + polygons[i].join("L") + "Z";
+        })
+        .on("mouseover", function(d, i) {
+          console.log(
+            d[
+              "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)Where do you live?"
+            ]
+          );
+          subtitle.text(
+            d[
+              "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)"
+            ]
+          );
+          d3.selectAll("circle").attr("r", function(c_d, c_i) {
+            return i === c_i ? 15 : 10;
+          });
+        });
     }
   }
   document.addEventListener("keydown", function(event) {
