@@ -16,13 +16,6 @@ var svg = d3
   .attr("display", "inline-block")
   .attr("width", w)
   .attr("height", h);
-
-var states = svg.append("svg:g").attr("id", "states");
-
-var circles = svg.append("svg:g").attr("id", "circles");
-
-var cells = svg.append("svg:g").attr("id", "cells");
-
 var bridge = svg
   .append("svg:image")
   .attr("id", "bridge")
@@ -30,6 +23,11 @@ var bridge = svg
   .attr("height", h)
   .attr("width", w)
   .attr("opacity", 1e-6);
+var states = svg.append("svg:g").attr("id", "states");
+
+var circles = svg.append("svg:g").attr("id", "circles");
+
+var cells = svg.append("svg:g").attr("id", "cells");
 
 var cotton = svg
   .append("svg:image")
@@ -93,7 +91,6 @@ d3.csv("wedding.csv", function(guest_data) {
   function setScene() {
     console.log(currentScene);
     if (currentScene === 0) {
-      title.text("Where do you live?");
       //  TODO: Get right lat,long",
       //  TODO: Change projection to rounder",
       //  TODO: center on sf",
@@ -140,9 +137,27 @@ d3.csv("wedding.csv", function(guest_data) {
           return 10;
         });
     } else if (currentScene === 1) {
-      title.text("Where are you now?"); //TODO ["real lat/longs", "new voronoi"]);
     } else if (currentScene === 2) {
-      title.text("To San Francisco"); //TODO ["Party colors", "Zoom"]);
+      setInterval(function() {
+        var index = Math.floor(Math.random() * guests.length);
+        circles.selectAll("circle").each(function(d, i) {
+          if (i === index) {
+            var colors = [
+              [113, 146, 198],
+              [59, 171, 97],
+              [234, 207, 71],
+              [204, 99, 51],
+              [106, 70, 149],
+              [166, 67, 82]
+            ];
+            var color = colors[Math.floor(colors.length * Math.random())];
+
+            var fill =
+              "rgb(" + color[0] + ", " + color[1] + ", " + color[2] + ")";
+            d3.select(this).style("fill", fill);
+          }
+        });
+      }, 1);
       circles
         .selectAll("circle")
         .transition()
@@ -164,11 +179,22 @@ d3.csv("wedding.csv", function(guest_data) {
                 .select("#bridge")
                 .transition()
                 .duration(750)
-                .attr("opacity", 1);
+                .attr("opacity", 1)
+                .each("end", function() {
+                  d3
+                    .selectAll("circle")
+                    .attr("cx", function() {
+                      return Math.random() * w;
+                    })
+                    .attr("cy", function() {
+                      return Math.random() * h / 2;
+                    })
+                    .transition()
+                    .attr("opacity", 1);
+                });
             }); //Bostock recommendation, css can't use smaller interpolion resolution
         });
     } else if (currentScene === 3) {
-      title.text("How long you've known them");
       d3
         .select("#bridge")
         .transition()
@@ -181,7 +207,6 @@ d3.csv("wedding.csv", function(guest_data) {
       // TODO Show how long people have known mark or elaine
       // TODO COLOR
     } else if (currentScene === 4) {
-      title.text("Does Cottonball Like you?");
       //TODO Pictures shift depending on person. 3? more?
       // TODO force clustering https://bl.ocks.org/mbostock/7882658
       svg
@@ -214,7 +239,6 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.cottonY;
         });
     } else if (currentScene === 5) {
-      title.text("Keto");
       //TODO Slide in picture other side? Food from elaine?
       //TODO Kitchen pictures from mark!
       svg
@@ -286,7 +310,6 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.tweetY;
         });
 
-      title.text("Tweets");
       // TODO  Cycle over tweets
       // TODO Transition each tweeter to come to center to say
       // TODO Tweetbox for tweets
