@@ -40,7 +40,9 @@ var keto = svg
   .attr("width", w / 2)
   .attr("x", -w)
   .attr("y", 0);
+
 function sunflower(centerX, centerY, spacing, theta) {
+  //TODO More even spacing? https://bl.ocks.org/mbostock/11478058
   if (!spacing) spacing = 20;
   if (!theta) theta = 1;
   var offset = Math.random() * Math.PI * 2;
@@ -52,13 +54,16 @@ function sunflower(centerX, centerY, spacing, theta) {
     return [centerX + radius * Math.cos(a), centerY + radius * Math.sin(a)];
   };
 }
+
 d3.select("input[type=checkbox]").on("change", function() {
+  //TOO Fix voronoi overlays consistently
   cells.classed("voronoi", this.checked);
 });
+
 var guests;
-d3.csv("wedding.csv", function(g) {
-  guest_homes = [];
-  guests = g.filter(function(guest) {
+d3.csv("wedding.csv", function(guest_data) {
+  guest_homes = []; //TODO Replace by putting more x/y on the guest?
+  guests = guest_data.filter(function(guest) {
     if (guest.longitude && guest.latitude) {
       guest_homes.push(projection([+guest.latitude, +guest.longitude]));
     } else {
@@ -72,14 +77,8 @@ d3.csv("wedding.csv", function(g) {
 
   var title = d3.select("h1");
   var currentScene = 0;
-  // TODO: Brooke when present?
-  // TODO: Tablet?
-  // TODO: Recontextualize titles
-  // From Brooke
-  //// No response shaming
   //// Better SF frame, Bridge?
   //// Email Brooke invitations etc
-  //// Nesting weird, how transition? https://bl.ocks.org/mbostock/1021841
   ////  TODO timeline https://bl.ocks.org/mbostock/6526445e2b44303eebf21da3b6627320
   function setScene() {
     console.log(currentScene);
@@ -90,10 +89,6 @@ d3.csv("wedding.csv", function(g) {
       //  TODO: center on sf",
       //  TODO: put non-latlong around round projection",
       //  TODO: fix voronoi spacing"
-      //  TODO: Go backwards?
-      //  TODO just states we have?
-      //  TODO: Why can't we move backwards to this?
-      //  TODO: trails over animations for lived, met, sf
       //  TODO: clustering https://bl.ocks.org/mbostock/7882658
       d3.json("us-states.json", function(collection) {
         states
@@ -159,12 +154,11 @@ d3.csv("wedding.csv", function(g) {
           return guest_homes[0][1];
         });
     } else if (currentScene === 3) {
+      title.text("How long you've known them");
       // TODO Show how long people have known mark or elaine
       // TODO COLOR
     } else if (currentScene === 4) {
       title.text("Does Cottonball Like you?");
-      //TODO d3 to half, cotton ball slides in right
-      //TODO vertical instead of horizontal
       //TODO Pictures shift depending on person. 3? more?
       // TODO force clustering https://bl.ocks.org/mbostock/7882658
       svg
