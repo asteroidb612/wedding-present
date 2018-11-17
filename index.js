@@ -1,5 +1,6 @@
 var w = 1280,
-  h = 800;
+  h = 800,
+  colorInterval;
 
 var projection = d3.geo
   .azimuthal()
@@ -16,6 +17,7 @@ var svg = d3
   .attr("display", "inline-block")
   .attr("width", w)
   .attr("height", h);
+
 var bridge = svg
   .append("svg:image")
   .attr("id", "bridge")
@@ -138,61 +140,58 @@ d3.csv("wedding.csv", function(guest_data) {
         });
     } else if (currentScene === 1) {
     } else if (currentScene === 2) {
-      setInterval(function() {
+      var selection = circles.selectAll("circle");
+      colorInterval = setInterval(function() {
         var index = Math.floor(Math.random() * guests.length);
-        circles.selectAll("circle").each(function(d, i) {
-          if (i === index) {
-            var colors = [
-              [113, 146, 198],
-              [59, 171, 97],
-              [234, 207, 71],
-              [204, 99, 51],
-              [106, 70, 149],
-              [166, 67, 82]
-            ];
-            var color = colors[Math.floor(colors.length * Math.random())];
+        var colors = [
+          [113, 146, 198],
+          [59, 171, 97],
+          [234, 207, 71],
+          [204, 99, 51],
+          [106, 70, 149],
+          [166, 67, 82]
+        ];
+        var color = colors[Math.floor(colors.length * Math.random())];
 
-            var fill =
-              "rgb(" + color[0] + ", " + color[1] + ", " + color[2] + ")";
-            d3.select(this).style("fill", fill);
-          }
-        });
-      }, 1);
-      circles
-        .selectAll("circle")
+        var fill = "rgb(" + color[0] + ", " + color[1] + ", " + color[2] + ")";
+        d3.select(selection[0][index]).style("fill", fill);
+      }, 5);
+      for (var i = 0; i < guests.length; i++) {
+        guests[i].bridgeX = 150 + Math.random() * (w - 250);
+        guests[i].bridgeY = Math.random() * h / 3;
+      }
+
+      selection
         .transition()
-        .duration(1750)
+        .duration((guestsToSF = 1750))
         .attr("cx", function(d, i) {
           return guest_homes[0][0];
         })
         .attr("cy", function(d, i) {
           return guest_homes[0][1];
+        });
+
+      d3
+        .selectAll("#states path")
+        .transition()
+        .delay((statesOut = guestsToSF - 200))
+        .duration(750)
+        .attr("opacity", 1e-6);
+
+      d3
+        .select("#bridge")
+        .transition()
+        .delay((bridgeIn = statesOut + 400))
+        .duration()
+        .attr("opacity", 1);
+      selection
+        .transition()
+        .delay(bridgeIn)
+        .attr("cx", function(d) {
+          return d.bridgeX;
         })
-        .each("end", function() {
-          d3
-            .selectAll("#states path")
-            .transition()
-            .duration(750)
-            .attr("opacity", 1e-6)
-            .each("end", function() {
-              d3
-                .select("#bridge")
-                .transition()
-                .duration(750)
-                .attr("opacity", 1)
-                .each("end", function() {
-                  d3
-                    .selectAll("circle")
-                    .attr("cx", function() {
-                      return Math.random() * w;
-                    })
-                    .attr("cy", function() {
-                      return Math.random() * h / 2;
-                    })
-                    .transition()
-                    .attr("opacity", 1);
-                });
-            }); //Bostock recommendation, css can't use smaller interpolion resolution
+        .attr("cy", function(d) {
+          return d.bridgeY;
         });
     } else if (currentScene === 3) {
       d3
@@ -202,6 +201,39 @@ d3.csv("wedding.csv", function(guest_data) {
         .attr("opacity", 1e-6)
         .each("end", function() {
           d3.select("#bridge").attr("x", "3000");
+        });
+      var met = [];
+      for (var i = 0; i < guests.length; i++) {
+        met.push(new Date(guests[i]["When did you meet?"]));
+      }
+      var x = d3.scale
+        .linear()
+        .range([200, w])
+        .domain([_.min(met), _.max(met)]);
+
+      var colorScale = d3.scale
+        .linear()
+        .range([
+          [113, 146, 198],
+          [59, 171, 97],
+          [234, 207, 71],
+          [204, 99, 51],
+          [106, 70, 149],
+          [166, 67, 82]
+        ])
+        .domain([_.min(met), _.max(met)]);
+      svg
+        .selectAll("circle")
+        .transition()
+        .attr("cx", function(d) {
+          return x(new Date(d["When did you meet?"]));
+        })
+        .attr("cy", 400)
+        .each("end", function() {
+          clearInterval(colorInterval);
+          svg.selectAll("circle").style("fill", function(d) {
+            return colorScale(new Date(d["When did you meet?"]));
+          });
         });
 
       // TODO Show how long people have known mark or elaine
