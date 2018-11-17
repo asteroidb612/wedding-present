@@ -93,6 +93,7 @@ d3.csv("wedding.csv", function(guest_data) {
   function setScene() {
     console.log(currentScene);
     if (currentScene === 0) {
+      title.text("People are at these places");
       //  TODO: Get right lat,long",
       //  TODO: Change projection to rounder",
       //  TODO: center on sf",
@@ -225,6 +226,7 @@ d3.csv("wedding.csv", function(guest_data) {
       svg
         .selectAll("circle")
         .transition()
+        .duration(1750)
         .attr("cx", function(d) {
           return x(new Date(d["When did you meet?"]));
         })
@@ -351,6 +353,7 @@ d3.csv("wedding.csv", function(guest_data) {
         .data(guests)
         .enter()
         .append("svg:g");
+
       var polygons = d3.geom.voronoi(tweet_coords);
       g
         .append("svg:path")
