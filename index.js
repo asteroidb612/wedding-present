@@ -75,15 +75,13 @@ d3.csv("wedding.csv", function(guest_data) {
   guest_homes = []; //TODO Replace by putting more x/y on the guest?
   guests = guest_data.filter(function(guest) {
     if (guest.longitude1 && guest.latitude1) {
-      guest_meet.push(projection([guest.latitude1, guest.longitude1 ]));
-    } else {
-      guest_meet.push([1000 + Math.random() * 150, 500]);
-      }
+      randLat =  Number(guest.latitude1) + Math.random()
+      randLong =  Number(guest.longitude1) + Math.random()
+      guest_meet.push(projection([randLat, randLong ]));
+    }
     if (guest.longitude2 && guest.latitude2) {
       guest_homes.push(projection([guest.latitude2, guest.longitude2]));
-    } else {
-      guest_homes.push([1000 + Math.random() * 150, 500]);
-      }
+    }
     if (guest) {
       return true;
     }
@@ -376,7 +374,7 @@ d3.csv("wedding.csv", function(guest_data) {
         var selection = d3.selectAll("circle");
         var val = selection[0][i-1];
         selection.attr("r", function(c_d, c_i){ return i === c_i ? 15 : 10; });
-        subtitle.text(val.__data__[ 
+        subtitle.text(val.__data__[
               "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)"
           ]);
       }
