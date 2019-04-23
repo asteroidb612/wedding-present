@@ -241,10 +241,8 @@ d3.csv("wedding.csv", function(guest_data) {
         });
 
       // TODO Show how long people have known mark or elaine
-      // TODO COLOR
     } else if (currentScene === 4) {
-      title.text("But we are all vying for CB's heart, those that know her anyways!"); //BRS I think we def need the hover over answers for thsi to make sense
-      //TODO Pictures shift depending on person. 3? more?
+      title.text("But we are all vying for CB's heart, those that know her anyways!");
       // TODO force clustering https://bl.ocks.org/mbostock/7882658
       svg
         .select("#cotton")
@@ -358,6 +356,16 @@ d3.csv("wedding.csv", function(guest_data) {
         .append("svg:g");
 
       var polygons = d3.geom.voronoi(tweet_coords);
+      var lastChanged = new Date();
+      function select(i) {
+        console.log("selecting " + i );
+        var selection = d3.selectAll("circle");
+        var val = selection[0][i-1];
+        selection.attr("r", function(c_d, c_i){ return i === c_i ? 15 : 10; });
+        subtitle.text(val.__data__[ 
+              "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)"
+          ]);
+      }
       g
         .append("svg:path")
         .attr("class", "cell")
@@ -365,20 +373,17 @@ d3.csv("wedding.csv", function(guest_data) {
           return "M" + polygons[i].join("L") + "Z";
         })
         .on("mouseover", function(d, i) {
-          console.log(
-            d[
-              "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)Where do you live?"
-            ]
-          );
-          subtitle.text(
-            d[
-              "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)"
-            ]
-          );
-          d3.selectAll("circle").attr("r", function(c_d, c_i) {
-            return i === c_i ? 15 : 10;
-          });
+          select(i);
+          lastChanged = new Date();
         });
+      setInterval(function() {
+        var now = new Date;
+        if (now - lastChanged > 5000) {
+          var nth = Math.floor(Math.random() * d3.selectAll("circle")[0].length); // Some random circle
+          select(nth);
+          lastChanged = new Date();
+        }
+      }, 5000);
     }
   }
   document.addEventListener("keydown", function(event) {
