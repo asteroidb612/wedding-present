@@ -281,6 +281,11 @@ d3.csv("wedding.csv", function(guest_data) {
         guests[i].cottonX = coords[0];
         guests[i].cottonY = coords[1];
       }
+
+      focusOn = makeFocusFunction("Does Cotton Ball like you?");
+      subtitle.style("color", "white");
+      lastChanged = new Date() - 5000;
+
       circles
         .selectAll("circle")
         .transition()
@@ -291,7 +296,24 @@ d3.csv("wedding.csv", function(guest_data) {
         .attr("cy", function(d) {
           return d.cottonY;
         });
+      circles.selectAll("circle")
+        .on("mouseover", function(d, i) {
+          focusOn(d);
+          lastChanged = new Date();
+        });
+
+      var cottonInterval = setInterval(function() {
+        var now = new Date;
+        if (now - lastChanged > 5000) {
+          var nth = Math.floor(Math.random() * d3.selectAll("circle")[0].length); // Some random circle
+          focusOn(d3.selectAll("circle")[0][nth].__data__);
+          lastChanged = new Date();
+        }
+      }, 100);
+
     } else if (currentScene === 5) {
+      lastChanged = new Date() - 5000;
+      subtitle.style("color", "black");
       title.text("Elaine's cooking has tempted us all to conver to Keto, but some friends still cave for a cinnoman roll..."); //BRS
       svg
         .select("#keto")
@@ -322,6 +344,7 @@ d3.csv("wedding.csv", function(guest_data) {
         guests[i].ketoY = coords[1];
       }
 
+      focusOn = makeFocusFunction("Have you ever been on the Keto diet?");
       circles
         .selectAll("circle")
         .transition()
@@ -332,6 +355,12 @@ d3.csv("wedding.csv", function(guest_data) {
         .attr("cy", function(d) {
           return d.ketoY;
         });
+      circles.selectAll("circle")
+        .on("mouseover", function(d, i) {
+          focusOn(d);
+          lastChanged = new Date();
+        });
+
     } else if (currentScene === 6) {
       title.text("Different places, different diets, and different ages, but we all agree you are both #blessed, and we wish you a very happy, ever after!");
       svg
@@ -363,27 +392,15 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.tweetY;
         });
 
-      // TODO  Cycle over tweets
-      // TODO Transition each tweeter to come to center to say
-      // TODO Tweetbox for tweets
       //The voronoi polygons
       var g = cells
         .selectAll("g")
         .data(guests)
         .enter()
         .append("svg:g");
-
+      focusOn = makeFocusFunction( "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)" );
       var polygons = d3.geom.voronoi(tweet_coords);
-      var lastChanged = new Date();
-      function select(i) {
-        console.log("selecting " + i );
-        var selection = d3.selectAll("circle");
-        var val = selection[0][i-1];
-        selection.attr("r", function(c_d, c_i){ return i === c_i ? 15 : 10; });
-        subtitle.text(val.__data__[
-              "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)"
-          ]);
-      }
+      lastChanged = new Date() - 5000;
       g
         .append("svg:path")
         .attr("class", "cell")
@@ -391,17 +408,9 @@ d3.csv("wedding.csv", function(guest_data) {
           return "M" + polygons[i].join("L") + "Z";
         })
         .on("mouseover", function(d, i) {
-          select(i);
+          focusOn(d);
           lastChanged = new Date();
         });
-      setInterval(function() {
-        var now = new Date;
-        if (now - lastChanged > 5000) {
-          var nth = Math.floor(Math.random() * d3.selectAll("circle")[0].length); // Some random circle
-          select(nth);
-          lastChanged = new Date();
-        }
-      }, 5000);
     }
   }
   document.addEventListener("keydown", function(event) {
@@ -411,4 +420,13 @@ d3.csv("wedding.csv", function(guest_data) {
     }
   });
   setScene();
+  function makeFocusFunction(ofWhat) {
+    return function(guest) {
+      if (guest["Username"]) { //Defensive programming instead of understanding why guest === 8 sometimes
+        var selection = d3.selectAll("circle");
+        selection.attr("r", function(c_d, c_i){ return c_d["Username"] === guest["Username"] ? 15 : 10; });
+        subtitle.html(ofWhat + ": <br>" + guest[ofWhat]); 
+      }
+    }
+  }
 });
