@@ -12,7 +12,7 @@ var projection = d3.geo
 var path = d3.geo.path().projection(projection);
 
 var svg = d3
-  .select("body")
+  .select("#vis")
   .insert("svg:svg", "h2")
   .attr("display", "inline-block")
   .attr("width", w)
@@ -88,12 +88,11 @@ d3.csv("wedding.csv", function(guest_data) {
   var subtitle = d3.select("#text");
   var currentScene = 0;
   //// Better SF frame, Bridge?
-  //// Email Brooke invitations etc
   ////  TODO timeline https://bl.ocks.org/mbostock/6526445e2b44303eebf21da3b6627320
   function setScene() {
     console.log(currentScene);
     if (currentScene === 0) {
-      title.text("People are at these places");
+      title.text("Cosmipolitan and worldy people that you are, you have met these ___ in quite a few places..."); 
       //  TODO: Get right lat,long",
       //  TODO: Change projection to rounder",
       //  TODO: center on sf",
@@ -140,7 +139,9 @@ d3.csv("wedding.csv", function(guest_data) {
           return 10;
         });
     } else if (currentScene === 1) {
+      title.text("And while many have scattered near and far..."); //BRS
     } else if (currentScene === 2) {
+      title.text("We are all here and are just twinkling with love and joy for you both!"); 
       var selection = circles.selectAll("circle");
       colorInterval = setInterval(function() {
         var index = Math.floor(Math.random() * guests.length);
@@ -241,6 +242,7 @@ d3.csv("wedding.csv", function(guest_data) {
       // TODO Show how long people have known mark or elaine
       // TODO COLOR
     } else if (currentScene === 4) {
+      title.text("But we are all vying for CB's heart, those that know her anyways!"); //BRS I think we def need the hover over answers for thsi to make sense
       //TODO Pictures shift depending on person. 3? more?
       // TODO force clustering https://bl.ocks.org/mbostock/7882658
       svg
@@ -273,8 +275,7 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.cottonY;
         });
     } else if (currentScene === 5) {
-      //TODO Slide in picture other side? Food from elaine?
-      //TODO Kitchen pictures from mark!
+      title.text("Elaine's cooking has tempted us all to conver to Keto, but some friends still cave for a cinnoman roll..."); //BRS
       svg
         .select("#keto")
         .transition()
@@ -315,6 +316,7 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.ketoY;
         });
     } else if (currentScene === 6) {
+      title.text("Different places, different diets, and different ages, but we all agree you are both #blessed, and we wish you a very happy, ever after!");
       svg
         .select("#keto")
         .transition()
