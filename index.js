@@ -278,7 +278,7 @@ d3.csv("wedding.csv", function(guest_data) {
 
       focusOn = makeFocusFunction("Does Cotton Ball like you?");
       subtitle.style("color", "white");
-      lastChanged = new Date();
+      lastChanged = new Date() - 5000;
 
       circles
         .selectAll("circle")
@@ -303,10 +303,10 @@ d3.csv("wedding.csv", function(guest_data) {
           focusOn(d3.selectAll("circle")[0][nth].__data__);
           lastChanged = new Date();
         }
-      }, 5000);
+      }, 100);
 
     } else if (currentScene === 5) {
-      clearInterval(cottonInterval);
+      lastChanged = new Date() - 5000;
       subtitle.style("color", "black");
       title.text("Elaine's cooking has tempted us all to conver to Keto, but some friends still cave for a cinnoman roll..."); //BRS
       svg
@@ -355,16 +355,7 @@ d3.csv("wedding.csv", function(guest_data) {
           lastChanged = new Date();
         });
 
-      var foodInterval = setInterval(function() {
-        var now = new Date;
-        if (now - lastChanged > 5000) {
-          var nth = Math.floor(Math.random() * d3.selectAll("circle")[0].length); // Some random circle
-          focusOn(d3.selectAll("circle")[0][nth].__data__);
-          lastChanged = new Date();
-        }
-      }, 5000);
     } else if (currentScene === 6) {
-      clearInterval(foodInterval);
       title.text("Different places, different diets, and different ages, but we all agree you are both #blessed, and we wish you a very happy, ever after!");
       svg
         .select("#keto")
@@ -403,7 +394,7 @@ d3.csv("wedding.csv", function(guest_data) {
         .append("svg:g");
       focusOn = makeFocusFunction( "Please write a tweet for Mark and Elaine (no more than 140 characters, okay?)" );
       var polygons = d3.geom.voronoi(tweet_coords);
-      var lastChanged = new Date();
+      lastChanged = new Date() - 5000;
       g
         .append("svg:path")
         .attr("class", "cell")
@@ -414,14 +405,6 @@ d3.csv("wedding.csv", function(guest_data) {
           focusOn(d);
           lastChanged = new Date();
         });
-      setInterval(function() {
-        var now = new Date;
-        if (now - lastChanged > 5000) {
-          var nth = Math.floor(Math.random() * d3.selectAll("circle")[0].length); // Some random circle
-          focusOn(d3.selectAll("circle")[0][nth].__data__);
-          lastChanged = new Date();
-        }
-      }, 5000);
     }
   }
   document.addEventListener("keydown", function(event) {
