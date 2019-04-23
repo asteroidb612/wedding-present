@@ -71,14 +71,19 @@ d3.select("input[type=checkbox]").on("change", function() {
 
 var guests;
 d3.csv("wedding.csv", function(guest_data) {
+  guest_meet = [];
   guest_homes = []; //TODO Replace by putting more x/y on the guest?
   guests = guest_data.filter(function(guest) {
-    if (guest.longitude && guest.latitude) {
-      guest_homes.push(projection([+guest.latitude, +guest.longitude]));
+    if (guest.longitude1 && guest.latitude1) {
+      guest_meet.push(projection([guest.latitude1, guest.longitude1 ]));
+    } else {
+      guest_meet.push([1000 + Math.random() * 150, 500]);
+      }
+    if (guest.longitude2 && guest.latitude2) {
+      guest_homes.push(projection([guest.latitude2, guest.longitude2]));
     } else {
       guest_homes.push([1000 + Math.random() * 150, 500]);
-      guest.longitude = guest.latitude = 0;
-    }
+      }
     if (guest) {
       return true;
     }
@@ -92,7 +97,7 @@ d3.csv("wedding.csv", function(guest_data) {
   function setScene() {
     console.log(currentScene);
     if (currentScene === 0) {
-      title.text("Cosmipolitan and worldy people that you are, you have met these ___ in quite a few places..."); 
+      title.text("Cosmipolitan and worldy people that you are, you have met these ___ in quite a few places...");
       //  TODO: Get right lat,long",
       //  TODO: Change projection to rounder",
       //  TODO: center on sf",
@@ -130,18 +135,27 @@ d3.csv("wedding.csv", function(guest_data) {
         .enter()
         .append("svg:circle")
         .attr("cx", function(d, i) {
-          return guest_homes[i][0];
+          return guest_meet[i][0];
         })
         .attr("cy", function(d, i) {
-          return guest_homes[i][1];
+          return guest_meet[i][1];
         })
         .attr("r", function() {
           return 10;
         });
     } else if (currentScene === 1) {
       title.text("And while many have scattered near and far..."); //BRS
+      circles.selectAll("circle")
+        .transition()
+        .duration((guestsToSF = 2200))
+        .attr("cx", function(d, i) {
+          return guest_homes[i][0];
+        })
+        .attr("cy", function(d, i) {
+          return guest_homes[i][1];
+        });
     } else if (currentScene === 2) {
-      title.text("We are all here and are just twinkling with love and joy for you both!"); 
+      title.text("We are all here and are just twinkling with love and joy for you both!");
       var selection = circles.selectAll("circle");
       colorInterval = setInterval(function() {
         var index = Math.floor(Math.random() * guests.length);
@@ -196,7 +210,7 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.bridgeY;
         });
     } else if (currentScene === 3) {
-      title.text("TBD"); 
+      title.text("TBD");
       d3
         .select("#bridge")
         .transition()
