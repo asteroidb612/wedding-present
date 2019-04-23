@@ -196,6 +196,7 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.bridgeY;
         });
     } else if (currentScene === 3) {
+      title.text("TBD"); 
       d3
         .select("#bridge")
         .transition()
