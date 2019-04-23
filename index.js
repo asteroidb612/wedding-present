@@ -72,7 +72,7 @@ d3.select("input[type=checkbox]").on("change", function() {
 var guests;
 d3.csv("wedding.csv", function(guest_data) {
   guest_meet = [];
-  guest_homes = []; //TODO Replace by putting more x/y on the guest?
+  guest_homes = [];
   guests = guest_data.filter(function(guest) {
     if (guest.longitude1 && guest.latitude1) {
       randLat =  Number(guest.latitude1) + Math.random()
@@ -87,15 +87,20 @@ d3.csv("wedding.csv", function(guest_data) {
     }
   });
 
+  var bigger_title = d3.select("#bigger_title");
   var title = d3.select("#title");
   var subtitle = d3.select("#text");
-  var currentScene = 0;
+  var currentScene = -1;
   //// Better SF frame, Bridge?
   ////  TODO timeline https://bl.ocks.org/mbostock/6526445e2b44303eebf21da3b6627320
   function setScene() {
     console.log(currentScene);
+    if (currentScene === -1) {
+      bigger_title.html("Just a few months ago fans of Mark & Elaine gathered in the sacred hills of the Presidio to celebrate a fabulous wedding... <br> <br>And in true SF fasion we have some analytics to prove it! <br><br> <small>A gift from Drew and Brooke<small>");
+    }
     if (currentScene === 0) {
-      title.text("Cosmipolitan and worldy people that you are, you have met these ___ in quite a few places...");
+      bigger_title.text("");
+      title.text("Cosmipolitan and worldy people that you are, you have met these folks in quite a few places...");
       //  TODO: Get right lat,long",
       //  TODO: Change projection to rounder",
       //  TODO: center on sf",
@@ -153,10 +158,11 @@ d3.csv("wedding.csv", function(guest_data) {
           return guest_homes[i][1];
         });
     } else if (currentScene === 2) {
-      title.text("We are all here and are just twinkling with love and joy for you both!");
+      title.text("We all journeyed to the city and are just twinkling with love and joy for you both!");
       var selection = circles.selectAll("circle");
       colorInterval = setInterval(function() {
         var index = Math.floor(Math.random() * guests.length);
+        console.log(index)
         var colors = [
           [113, 146, 198],
           [59, 171, 97],
@@ -248,7 +254,7 @@ d3.csv("wedding.csv", function(guest_data) {
         .each("end", function() {
           clearInterval(colorInterval);
           svg.selectAll("circle").style("fill", function(d) {
-            return colorScale(new Date(d["When did you meet?"]));
+            return colorScale(new Date(d["color_age"]));
           });
         });
 
