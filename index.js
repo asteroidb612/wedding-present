@@ -201,7 +201,7 @@ d3.csv("wedding.csv", function(guest_data) {
       d3
         .select("#bridge")
         .transition()
-        .delay((bridgeIn = statesOut + 400))
+        .delay((bridgeIn = statesOut + 1000))
         .duration()
         .attr("opacity", 1);
       selection
@@ -214,7 +214,7 @@ d3.csv("wedding.csv", function(guest_data) {
           return d.bridgeY;
         });
     } else if (currentScene === 3) {
-      title.text("TBD");
+      title.text("Oops, it looks like we forgrot to link the ages with the names here...");
       d3
         .select("#bridge")
         .transition()
@@ -260,7 +260,7 @@ d3.csv("wedding.csv", function(guest_data) {
 
       // TODO Show how long people have known mark or elaine
     } else if (currentScene === 4) {
-      title.text("But we are all vying for CB's heart, those that know her anyways!");
+      title.text("We learned we are all vying for CB's heart, those that know her anyways!");
       // TODO force clustering https://bl.ocks.org/mbostock/7882658
       svg
         .select("#cotton")
@@ -314,7 +314,7 @@ d3.csv("wedding.csv", function(guest_data) {
     } else if (currentScene === 5) {
       lastChanged = new Date() - 5000;
       subtitle.style("color", "black");
-      title.text("Elaine's cooking has tempted us all to conver to Keto, but some friends still cave for a cinnoman roll..."); //BRS
+      title.text("And that Elaine's cooking has tempted us all to conver to Keto, but some friends still cave for a cinnoman roll...");
       svg
         .select("#keto")
         .transition()
@@ -425,7 +425,7 @@ d3.csv("wedding.csv", function(guest_data) {
       if (guest["Username"]) { //Defensive programming instead of understanding why guest === 8 sometimes
         var selection = d3.selectAll("circle");
         selection.attr("r", function(c_d, c_i){ return c_d["Username"] === guest["Username"] ? 15 : 10; });
-        subtitle.html(ofWhat + ": <br>" + guest[ofWhat]); 
+        subtitle.html(ofWhat + ": <br>" + guest[ofWhat]);
       }
     }
   }
